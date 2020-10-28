@@ -1,0 +1,2583 @@
+{
+	"info": {
+		"_postman_id": "58199716-d0a3-4199-9f64-0fcf9ff88bca",
+		"name": "hw4-barracln",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "add boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "71ae4fa3-8949-4179-96e2-df6f7bb9351f",
+						"exec": [
+							"//Set boat id environment variable from response",
+							"pm.environment.set(\"boat_id\", pm.response.json()[\"id\"]);",
+							"pm.environment.set(\"boat_name\", pm.response.json()[\"name\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"    //Check for 201 status code",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"   //Check if the response content is valid and matches the expected values",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Sea Witch\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Catamaran\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(28);",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Sea Witch\",\n    \"type\": \"Catamaran\",\n    \"length\": 28\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add boat with missing attributes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c851714d-8ab0-4276-8a08-bfde32018276",
+						"exec": [
+							"pm.test(\"400 status code\", function () {",
+							"     //Check for 4XX status code",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"400 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request object is missing at least one of the required attributes\");",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Odyssey\",\n  \"type\": \"Yatch\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get boat (new boat, no loads)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0693fbea-d474-4103-8ca7-8db01c7d428c",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 2XX response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"    //Check if the content is valid",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Sea Witch\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Catamaran\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(28);",
+							"    pm.expect(pm.response.json()[\"loads\"]).to.eq(null);",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get boat with invalid id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "1668294d-9278-45a5-b0c6-44680d3a5a17",
+						"exec": [
+							"pm.test(\"404 not found\", function () {",
+							"    //Check for 4XX response",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with this boat_id exists\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add load",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7a9597b0-e468-4f31-9fdc-dc6c90848ec9",
+						"exec": [
+							"//Set appropriate environment variable for load id",
+							"pm.environment.set(\"load_id\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check if status code is 2XX",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"    //Check for appropriate content including self value",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(5);",
+							"    pm.expect(pm.response.json()[\"carrier\"]).to.eq(null);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"LEGO Blocks\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"10/18/2020\");",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"weight\": 5,\n  \"carrier\": null,\n  \"content\":\"LEGO Blocks\",\n  \"delivery_date\": \"10/18/2020\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add load with missing attributes",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c57a6ddd-4278-473e-bd17-ec823db7b814",
+						"exec": [
+							"pm.test(\"400 status code\", function () {",
+							"    //Check for error code 4XX",
+							"    pm.response.to.have.status(400);",
+							"});",
+							"",
+							"pm.test(\"400 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The request object is missing at least one of the required attributes\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"weight\": 5,\n  \"carrier\": null,\n  \"content\":\"LEGO Blocks\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get load (new load, no carrier)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5d007c94-54a7-44b1-a2c9-aa4bc9505eed",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for success 2XX response code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"    //Check if the content is valid",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(5);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"LEGO Blocks\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"10/18/2020\");",
+							"    pm.expect(pm.response.json()[\"carrier\"]).to.eq(null);",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get load with invalid id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7b4c48db-4fcf-4c1c-bf92-8e83f4f10da7",
+						"exec": [
+							"pm.test(\"404 not found\", function () {",
+							"    //Check for 4XX response",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No load with this load_id exists\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{invalid_load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{invalid_load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load to boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "5b028dea-e939-4a83-9f2c-486fec7fd3da",
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for error code 2XX",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load with invalid boat id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c5c8768d-3ceb-440f-89a0-9e84ededa3d2",
+						"exec": [
+							"pm.test(\"404 status code\", function () {",
+							"   //Check for error code 4XX",
+							"   pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for error code 4XX",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with this boat_id exists\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}",
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load with invalid load id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b7637cdf-527f-4070-b429-44b4b88022ab",
+						"exec": [
+							"pm.test(\"404 status code\", function () {",
+							"    //Check for error code 4XX",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No load with this load_id exists\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/loads/{{invalid_load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"loads",
+						"{{invalid_load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load with invalid boat id & invalid load id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f2f42d27-1ffb-4db5-b715-c62f7eb389c1",
+						"exec": [
+							"pm.test(\"404 status code\", function () {",
+							"    //Check for error code 4XX",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Not a valid boat_id nor a valid load_id.\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}/loads/{{invalid_load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}",
+						"loads",
+						"{{invalid_load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "load already assigned",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8bebf7b0-a7ee-45f6-a6df-74b6c3be55d9",
+						"exec": [
+							"pm.test(\"403 status code\", function () {",
+							"    //Check for error code 4XX",
+							"    pm.response.to.have.status(403);",
+							"});",
+							"",
+							"",
+							"pm.test(\"403 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eql(\"This load is already assigned to a carrier.\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get boat after load assigned",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "765ddc65-9b6c-4a05-a3a0-0dd10c8fdb9d",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for appropriate 2XX status code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content besides loads is valid\", function () {",
+							"    //Check for boat content is valid",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Sea Witch\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Catamaran\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(28);",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.test(\"loads content is valid\", function () {",
+							"   //Check if load content is valid",
+							"    const most_recent_load = pm.response.json()[\"loads\"][pm.response.json()[\"loads\"].length - 1];",
+							"    pm.expect(most_recent_load[\"id\"]).to.eq(pm.environment.get(\"load_id\"))",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + most_recent_load[\"id\"];",
+							"    pm.expect(most_recent_load[\"self\"]).to.eq(self_url);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get load after assigned to boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "02f5e80e-9843-4122-8aa3-7b9a389cdd4c",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for appropriate status code 2XX",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content besides carrier is valid\", function () {",
+							"    //Check for appropriate content for load including self attribute",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(5);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"LEGO Blocks\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"10/18/2020\");",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.test(\"carrier content is valid\", function () {",
+							"    //Check for appropriate content for carrier including self attribute",
+							"    const boatID = pm.environment.get(\"boat_id\").toString();",
+							"    boatSelf = pm.environment.get(\"app_url\").toString() + \"/boats/\" + boatID;",
+							"    boatName = pm.environment.get(\"boat_name\").toString();",
+							"    pm.expect(pm.response.json()[\"carrier\"][\"id\"]).to.eq(boatID);",
+							"    pm.expect(pm.response.json()[\"carrier\"][\"self\"]).to.eq(boatSelf);",
+							"    pm.expect(pm.response.json()[\"carrier\"][\"name\"]).to.eq(boatName);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove load from boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ea4ea28f-c152-49cb-ad20-ad5a665af00e",
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for apprropriate status code 2XX",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get load after removed from boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ddf2dcba-c7bc-4846-9147-fa5a8021cc28",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for appropriate status code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"   //Check for appropriate content including self attribute",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(5);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"LEGO Blocks\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"10/18/2020\");",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"    pm.expect(pm.response.json()[\"carrier\"]).to.eq(null);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get boat after load removed",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "2ca3c9eb-ec3e-406e-8712-4aaf7dc620d8",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for appropriate status code 2XX",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"    //Check for appropriate content",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Sea Witch\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Catamaran\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(28);",
+							"    //pm.expect(pm.response.json()[\"loads\"])",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove load - load not on this boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "979c64f3-fd28-40a7-acc1-d034124d2d9b",
+						"exec": [
+							"pm.test(\"404 status code\", function () {",
+							"    //Check for appropriate 4XX status code",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"The load is not on this boat.\");",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove load with invalid boat id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6349dcea-b451-409d-9661-c3f2c2f855f8",
+						"exec": [
+							"pm.test(\"404 status code\", function () {",
+							"    //Check for appropriate status 4XX code",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with this boat_id exists\");",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}",
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove load with invalid load id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "ff4ed4f5-1943-4130-a669-5fc8952025c1",
+						"exec": [
+							"pm.test(\"404 status code\", function () {",
+							"    //Check for appropriate 4XX status code",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"    //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No load with this load_id exists\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/loads/{{invalid_load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"loads",
+						"{{invalid_load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "remove load with invalid boat id & invalid load id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9670f47b-f083-4bf9-a152-515e1c365f62",
+						"exec": [
+							"pm.test(\"404 status code\", function () {",
+							"    //Check for appropriate 4XX status code",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate error message",
+							"     pm.expect(pm.response.json()[\"Error\"]).to.eq(\"Not a valid boat_id nor a valid load_id.\");",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}/loads/{{invalid_load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}",
+						"loads",
+						"{{invalid_load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "re-assign load to boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4ac862c0-95ad-48bd-9f5c-40f8532270d9",
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for appropriate 2XX status code",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "58f32780-4f18-45b1-8775-96c7cd002faf",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"    //Check for appropriate 2XX status code",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get load after carrier boat deleted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c5dd386c-4461-40a5-8bd3-adac321ad409",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for appropriate 2XX status code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"    //Check if the content is valid including self attribute",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(5);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"LEGO Blocks\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"10/18/2020\");",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"    pm.expect(pm.response.json()[\"carrier\"]).to.eq(null);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete boat with invalid id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "62d380bb-cb3c-4183-be8a-1ce3a8c7b57f",
+						"exec": [
+							"pm.test(\"404 not found\", function () {",
+							"    //Check for appropriate 4XX status code",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with this boat_id exists\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete load with invalid id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "9a3f88f0-1115-4ff3-bf08-f3410661398a",
+						"exec": [
+							"pm.test(\"404 not found\", function () {",
+							"    //Check for appropriate 4XX error message",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate error message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No load with this load_id exists\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{invalid_load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{invalid_load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "09b905f2-96c2-4a3e-a120-de6b1c900bd2",
+						"exec": [
+							"//Set appropriate environment variable(s) for boat id",
+							"pm.environment.set(\"boat_id\", pm.response.json()[\"id\"]);",
+							"pm.environment.set(\"boat_name\", pm.response.json()[\"name\"]);",
+							"pm.environment.set(\"boat_length\", pm.response.json()[\"length\"]);",
+							"pm.environment.set(\"boat_type\", pm.response.json()[\"type\"]);",
+							"",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"    //Check for appropriate 2XX error message",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"    //Check if content is valid including self attribute",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"USS Callister\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Space Ship\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(69);",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"USS Callister\",\n    \"type\": \"Space Ship\",\n    \"length\": 69\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load to newest boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "8011334b-d965-4f30-a3c5-4a66fe63c471",
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for error code 2XX",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}",
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get boat after load assigned",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "4cac3e7d-ca38-462c-8fd1-2084f937135a",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for appropriate 2XX status code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"content besides loads is valid\", function () {",
+							"    //Check for boat content is valid",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"USS Callister\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Space Ship\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(69);",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.test(\"loads content is valid\", function () {",
+							"   //Check if load content is valid",
+							"    const most_recent_load = pm.response.json()[\"loads\"][pm.response.json()[\"loads\"].length - 1];",
+							"    pm.expect(most_recent_load[\"id\"]).to.eq(pm.environment.get(\"load_id\"))",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + most_recent_load[\"id\"];",
+							"    pm.expect(most_recent_load[\"self\"]).to.eq(self_url);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete load",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "d997e2ed-9432-4255-9b46-d5e89543a26f",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get boat after load deleted",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "fe06420a-83c0-4f91-a878-f65cdc7dd6fa",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for appropriate 2XX status code",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"content besides loads is valid\", function () {",
+							"    //Check for boat content is valid",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"USS Callister\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Space Ship\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(69);",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.test(\"content is valid\", function () {",
+							"   //Check if load content is valid",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(pm.environment.get(\"boat_name\"));",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(pm.environment.get(\"boat_type\"));",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(pm.environment.get(\"boat_length\"));",
+							"    pm.expect(pm.response.json()[\"loads\"].length).to.eq(0);",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "07dd5c85-f40f-4eac-94fe-7a1a55215c29",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"    //Check for appropriate 2XX error message",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add boat01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "742f2249-981c-4fc8-a0ae-372aba9d8af3",
+						"exec": [
+							"//Set appropriate environment variable(s) for boat id",
+							"pm.environment.set(\"boat01_id\", pm.response.json()[\"id\"]);",
+							"pm.environment.set(\"boat01_name\", pm.response.json()[\"name\"]);",
+							"pm.environment.set(\"boat01_length\", pm.response.json()[\"length\"]);",
+							"pm.environment.set(\"boat01_type\", pm.response.json()[\"type\"]);",
+							"",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"    //Check for appropriate 2XX error message",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"boat01 content is valid\", function () {",
+							"    //Check if content is valid including self attribute",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"MJroo\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Sailboat\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(12);",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"MJroo\",\n    \"type\": \"Sailboat\",\n    \"length\": 12\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add load01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "cebd4c21-a63a-4873-8630-bb6218ffc50a",
+						"exec": [
+							"//Set appropriate environment variable for load id",
+							"pm.environment.set(\"load01_id\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check if status code is 2XX",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"load01 content is valid\", function () {",
+							"    //Check for appropriate content including self value",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(2);",
+							"    pm.expect(pm.response.json()[\"carrier\"]).to.eq(null);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Paper cranes\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"1/1/2021\");",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"weight\": 2,\n  \"carrier\": null,\n  \"content\":\"Paper cranes\",\n  \"delivery_date\": \"1/1/2021\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load01 to boat01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f5160ccf-448b-4b35-9108-00728d7aa2d3",
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for error code 2XX",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat01_id}}/loads/{{load01_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat01_id}}",
+						"loads",
+						"{{load01_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add load02",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "288e63ac-1549-49d4-9b2a-7dba5340c073",
+						"exec": [
+							"//Set appropriate environment variable for load id",
+							"pm.environment.set(\"load02_id\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check if status code is 2XX",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"load02 content is valid\", function () {",
+							"    //Check for appropriate content including self value",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(1500);",
+							"    pm.expect(pm.response.json()[\"carrier\"]).to.eq(null);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Ballistic missiles\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"9/4/2021\");",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"weight\": 1500,\n  \"carrier\": null,\n  \"content\":\"Ballistic missiles\",\n  \"delivery_date\": \"9/4/2021\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load02 to boat01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "0a896ca6-b0b4-47fb-a8b0-4b78c8afb391",
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for error code 2XX",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat01_id}}/loads/{{load02_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat01_id}}",
+						"loads",
+						"{{load02_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add load03",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6475c719-522e-44f6-b6dc-843d63695e17",
+						"exec": [
+							"//Set appropriate environment variable for load id",
+							"pm.environment.set(\"load03_id\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check if status code is 2XX",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"load03 content is valid\", function () {",
+							"    //Check for appropriate content including self value",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(420);",
+							"    pm.expect(pm.response.json()[\"carrier\"]).to.eq(null);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Medicinal cannibus\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"4/20/2021\");",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"weight\": 420,\n  \"carrier\": null,\n  \"content\":\"Medicinal cannibus\",\n  \"delivery_date\": \"4/20/2021\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load03 to boat01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6e208bc2-5700-4249-a101-7507a42eb1f8",
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for error code 2XX",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat01_id}}/loads/{{load03_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat01_id}}",
+						"loads",
+						"{{load03_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add load04",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "7e39db52-8665-4f62-9b75-355c7d778b6a",
+						"exec": [
+							"//Set appropriate environment variable for load id",
+							"pm.environment.set(\"load04_id\", pm.response.json()[\"id\"]);",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"   //Check if status code is 2XX",
+							"   pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"load04 content is valid\", function () {",
+							"    //Check for appropriate content including self value",
+							"    pm.expect(pm.response.json()[\"weight\"]).to.eq(10);",
+							"    pm.expect(pm.response.json()[\"carrier\"]).to.eq(null);",
+							"    pm.expect(pm.response.json()[\"content\"]).to.eq(\"Pizza\");",
+							"    pm.expect(pm.response.json()[\"delivery_date\"]).to.eq(\"2/8/2021\");",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"weight\": 10,\n  \"carrier\": null,\n  \"content\":\"Pizza\",\n  \"delivery_date\": \"2/8/2021\"\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "assign load04 to boat01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bc37b41d-b04c-48c8-a8de-931c20b72a8f",
+						"exec": [
+							"pm.test(\"204 status code\", function () {",
+							"    //Check for error code 2XX",
+							"    pm.response.to.have.status(204);",
+							"});",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat01_id}}/loads/{{load04_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat01_id}}",
+						"loads",
+						"{{load04_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all loads for given boat",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "07074040-7a28-4ec6-9c1e-a8f8170e09ce",
+						"exec": [
+							"pm.test(\"200 status code\", function () {",
+							"    //Check for appropriate 2XX error message",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"",
+							"pm.test(\"load01 content besides carrier is valid\", function () {",
+							"    //Check for appropriate load contents",
+							"    pm.expect(pm.response.json()[0][\"weight\"]).to.eq(2);",
+							"    pm.expect(pm.response.json()[0][\"content\"]).to.eq(\"Paper cranes\");",
+							"    pm.expect(pm.response.json()[0][\"delivery_date\"]).to.eq(\"1/1/2021\");",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[0][\"id\"];",
+							"    pm.expect(pm.response.json()[0][\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.test(\"load02 content besides carrier is valid\", function () {",
+							"    //Check for appropriate load contents",
+							"    pm.expect(pm.response.json()[1][\"weight\"]).to.eq(1500);",
+							"    pm.expect(pm.response.json()[1][\"content\"]).to.eq(\"Ballistic missiles\");",
+							"    pm.expect(pm.response.json()[1][\"delivery_date\"]).to.eq(\"9/4/2021\");",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[1][\"id\"];",
+							"    pm.expect(pm.response.json()[1][\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.test(\"load03 content besides carrier is valid\", function () {",
+							"    //Check for appropriate load contents",
+							"    pm.expect(pm.response.json()[2][\"weight\"]).to.eq(420);",
+							"    pm.expect(pm.response.json()[2][\"content\"]).to.eq(\"Medicinal cannibus\");",
+							"    pm.expect(pm.response.json()[2][\"delivery_date\"]).to.eq(\"4/20/2021\");",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[2][\"id\"];",
+							"    pm.expect(pm.response.json()[2][\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"pm.test(\"load04 content besides carrier is valid\", function () {",
+							"    //Check for appropriate load contents",
+							"    pm.expect(pm.response.json()[3][\"weight\"]).to.eq(10);",
+							"    pm.expect(pm.response.json()[3][\"content\"]).to.eq(\"Pizza\");",
+							"    pm.expect(pm.response.json()[3][\"delivery_date\"]).to.eq(\"2/8/2021\");",
+							"    //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/loads/\" + pm.response.json()[3][\"id\"];",
+							"    pm.expect(pm.response.json()[3][\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat01_id}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat01_id}}",
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all loads for boat with invalid boat id",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "29076909-4d0f-4ce1-8546-dfa3cb50b24f",
+						"exec": [
+							"pm.test(\"404 not found\", function () {",
+							"    //Check for appropriate 4XX status code",
+							"    pm.response.to.have.status(404);",
+							"});",
+							"",
+							"",
+							"pm.test(\"404 error message\", function () {",
+							"     //Check for appropriate status message",
+							"    pm.expect(pm.response.json()[\"Error\"]).to.eq(\"No boat with this boat_id exists\");",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{invalid_boat_id}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{invalid_boat_id}}",
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all loads with pagination",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "68b81614-aeb5-478f-a8e5-3b9af2c8ab45",
+						"exec": [
+							"pm.test(\"2XX status code\", function () {",
+							"   //Check for appropriate 2XX status code",
+							"});",
+							"",
+							"pm.test(\"only correct number of loads in response\", function () {",
+							"    //Check for correct number of loads",
+							"});",
+							"",
+							"pm.test(\"next property exists\", function () {",
+							"    //Check if next property exists",
+							"});",
+							"",
+							"next_url = pm.response.json().next;",
+							"",
+							"",
+							"pm.test(\"next property works\", function () {",
+							"    //Send request to check if next link works",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add boat02",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "f3cd9fc9-ed8f-4320-bbfb-568b0eaab90b",
+						"exec": [
+							"//Set appropriate environment variable(s) for boat id",
+							"pm.environment.set(\"boat02_id\", pm.response.json()[\"id\"]);",
+							"pm.environment.set(\"boat02_name\", pm.response.json()[\"name\"]);",
+							"pm.environment.set(\"boat02_length\", pm.response.json()[\"length\"]);",
+							"pm.environment.set(\"boat02_type\", pm.response.json()[\"type\"]);",
+							"",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"    //Check for appropriate 2XX error message",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"boat02 content is valid\", function () {",
+							"    //Check if content is valid including self attribute",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"ThisIsMyBoat!\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Dingy\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(3);",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"ThisIsMyBoat!\",\n    \"type\": \"Dingy\",\n    \"length\": 3\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add boat03",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6b46edba-9925-41ce-ac4f-3b5a4cae02de",
+						"exec": [
+							"//Set appropriate environment variable(s) for boat id",
+							"pm.environment.set(\"boat03_id\", pm.response.json()[\"id\"]);",
+							"pm.environment.set(\"boat03_name\", pm.response.json()[\"name\"]);",
+							"pm.environment.set(\"boat03_length\", pm.response.json()[\"length\"]);",
+							"pm.environment.set(\"boat03_type\", pm.response.json()[\"type\"]);",
+							"",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"    //Check for appropriate 2XX error message",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"boat03 content is valid\", function () {",
+							"    //Check if content is valid including self attribute",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Titanic\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Cruise Ship\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(200);",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Titanic\",\n    \"type\": \"Cruise Ship\",\n    \"length\": 200\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "add boat04",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "379a668a-a2b6-4dda-839a-7c98947c3dc7",
+						"exec": [
+							"//Set appropriate environment variable(s) for boat id",
+							"pm.environment.set(\"boat04_id\", pm.response.json()[\"id\"]);",
+							"pm.environment.set(\"boat04_name\", pm.response.json()[\"name\"]);",
+							"pm.environment.set(\"boat04_length\", pm.response.json()[\"length\"]);",
+							"pm.environment.set(\"boat04_type\", pm.response.json()[\"type\"]);",
+							"",
+							"",
+							"pm.test(\"201 status code\", function () {",
+							"    //Check for appropriate 2XX error message",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"",
+							"pm.test(\"boat04 content is valid\", function () {",
+							"    //Check if content is valid including self attribute",
+							"    pm.expect(pm.response.json()[\"name\"]).to.eq(\"Carl\");",
+							"    pm.expect(pm.response.json()[\"type\"]).to.eq(\"Row Boat\");",
+							"    pm.expect(pm.response.json()[\"length\"]).to.eq(2);",
+							"   //Check if the self url is correct",
+							"    const self_url = pm.environment.get(\"app_url\") + \"/boats/\" + pm.response.json()[\"id\"];",
+							"    pm.expect(pm.response.json()[\"self\"]).to.eq(self_url);",
+							"});",
+							"",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Carl\",\n    \"type\": \"Row Boat\",\n    \"length\": 2\n}"
+				},
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get all boats with pagination",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "53c651e6-b657-4144-b0ae-8af276a8797d",
+						"exec": [
+							"pm.test(\"2XX status code\", function () {",
+							"   //Check for appropriate 2XX status code",
+							"});",
+							"",
+							"pm.test(\"only correct number of boats in response\", function () {",
+							"    //Check for correct number of loads",
+							"});",
+							"",
+							"pm.test(\"next property exists\", function () {",
+							"    //Check if next property exists",
+							"});",
+							"",
+							"next_url = pm.response.json().next;",
+							"",
+							"",
+							"pm.test(\"next property works\", function () {",
+							"    //Send request to check if next link works",
+							"});",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete load01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "b9ada8e5-3268-4e8d-93d1-0745de9c445c",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load01_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load01_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete load02",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3df92110-a1b6-4bc4-9799-6a400f58a55c",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load02_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load02_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete load03",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "6d6dcf91-97c0-4f20-94a5-c989a93b7839",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load03_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load03_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete load04",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "3566c494-cd73-4291-9cd4-f6eb24842b4d",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/loads/{{load04_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"loads",
+						"{{load04_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete boat01",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c6f84acf-5dd6-4edf-8f67-e95994b5479f",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat01_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat01_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete boat02",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "c04d487b-a2e0-4596-951f-c4cd7af4aaad",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat02_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat02_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete boat03",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "bfa088d6-a35d-4dc1-8728-964e45324312",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat03_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat03_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete boat04",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"id": "03ce5257-6aed-4b72-b8e5-37a3699fbfe7",
+						"exec": [
+							"pm.test(\"204 no content\", function () {",
+							"   //Check for appropriate 2XX error message",
+							"   pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{app_url}}/boats/{{boat04_id}}",
+					"host": [
+						"{{app_url}}"
+					],
+					"path": [
+						"boats",
+						"{{boat04_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}
