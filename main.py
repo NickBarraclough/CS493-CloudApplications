@@ -1,4 +1,9 @@
-import datetime
+#---------------------------------------------------------------------
+# Assigment 4: Intermediate REST API
+#   \__main.py
+# Main app routing passed to Blueprints. 
+#---------------------------------------------------------------------
+
 import json
 import boats
 import loads
@@ -7,14 +12,15 @@ from flask import Flask, Blueprint, request, jsonify
 from google.cloud import datastore
 
 app = Flask(__name__)
+app.register_blueprint(boats.bp) # /boats
+app.register_blueprint(loads.bp) # /loads
+
 client = datastore.Client()
-app.register_blueprint(boats.bp)
-app.register_blueprint(loads.bp)
 
 # Index Page
 @app.route('/')
 def index():
-    return "Please navigate to /boats to use this API"\
+    return "Please navigate to /boats or /loads to use this API"\
 
 if __name__ == '__main__':
     # This is used when running locally only. When deploying to Google App
