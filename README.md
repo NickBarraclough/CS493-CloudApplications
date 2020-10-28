@@ -1,2 +1,2 @@
 # Cloud-Application
-RESTful API - CS493 Assignments
+REST API using Google Cloud Services - CS493 Assignments
