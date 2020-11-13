@@ -2,12 +2,13 @@ import flask
 import requests
 import string
 import random
+import os
 
 from flask import Flask, request, redirect, render_template, jsonify
 
 
-CLIENT_ID = ENV_CLIENTID
-CLIENT_SECRET = ENV_CLIENTSECRET
+CLIENT_ID = os.environ['ENV_CLIENTID']
+CLIENT_SECRET = os.environ['ENV_CLIENTSECRET']
 SCOPE = 'https://www.googleapis.com/auth/userinfo.profile'
 #REDIRECT_URI = 'http://localhost:8080/oauth' # For local testing
 REDIRECT_URI = 'https://barracln-oauth.wl.r.appspot.com/oauth' # For deploying to gcloud
