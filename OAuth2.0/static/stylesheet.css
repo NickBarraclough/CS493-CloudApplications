@@ -1,0 +1,12 @@
+#page_content {
+	margin: auto;
+	padding: 70px;
+	align-items: center;
+	display: flex;
+	position: relative;
+	text-align: center;
+}
+
+#redirect-button:hover {
+	text-decoration: underline;
+}
