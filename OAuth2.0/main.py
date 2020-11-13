@@ -1,4 +1,3 @@
-#########################################################################################
 import flask
 import requests
 import string
@@ -7,8 +6,8 @@ import random
 from flask import Flask, request, redirect, render_template, jsonify
 
 
-CLIENT_ID = '129750749498-uc629jr3t6gmcktnv69gl7pffqk8t8qg.apps.googleusercontent.com'
-CLIENT_SECRET = 'PhkNW7uqNexQQYc85bxlncGT'
+CLIENT_ID = ENV_CLIENTID
+CLIENT_SECRET = ENV_CLIENTSECRET
 SCOPE = 'https://www.googleapis.com/auth/userinfo.profile'
 #REDIRECT_URI = 'http://localhost:8080/oauth' # For local testing
 REDIRECT_URI = 'https://barracln-oauth.wl.r.appspot.com/oauth' # For deploying to gcloud
